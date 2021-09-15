@@ -3,7 +3,8 @@ package sort
 import "math"
 
 func MergeSort(values []int) {
-	mergesort(values, 0, len(values)-1)
+	buffer := make([]int, len(values))
+	mergesort(values, 0, len(values)-1, buffer)
 }
 
 /*
@@ -14,27 +15,32 @@ func MergeSort(values []int) {
 
 */
 
-func mergesort(values []int, start, end int) {
+func mergesort(values []int, start, end int, buffer []int) {
 	if start == end {
 		return
 	}
 	mid := int(math.Floor(float64((start + end) / 2)))
-	mergesort(values, start, mid)
-	mergesort(values, mid+1, end)
-	merge(values, start, mid, end)
+	mergesort(values, start, mid, buffer)
+	mergesort(values, mid+1, end, buffer)
+	merge(values, start, mid, end, buffer)
 }
 
-func merge(values []int, start, mid, end int) {
-	i := start
-	j := mid + 1
-	for i <= mid && j <= end {
-		if values[j] < values[i] {
-			tmp := values[j]
-			values[j] = values[i]
-			values[i] = tmp
-			j += 1
+func merge(values []int, start, mid, end int, buffer []int) {
+	leftIdx := start
+	sortedIdx := start
+	rightIdx := mid + 1
+	for leftIdx <= mid || rightIdx <= end {
+		if rightIdx > end || (leftIdx <= mid && values[leftIdx] < values[rightIdx]) {
+			buffer[sortedIdx] = values[leftIdx]
+			leftIdx += 1
 		} else {
-			i += 1
+			buffer[sortedIdx] = values[rightIdx]
+			rightIdx += 1
 		}
+		sortedIdx += 1
+	}
+
+	for i := start; i <= end; i++ {
+		values[i] = buffer[i]
 	}
 }
